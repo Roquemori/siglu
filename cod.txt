@@ -1,6 +1,0 @@
-podman logs siglu-backend
-podman logs siglu-frontend
-
-podman-compose down
-podman-compose build frontend
-podman-compose up -d
