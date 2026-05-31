@@ -18,16 +18,27 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-    
+
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-    
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, 
                                     HttpServletResponse response, 
                                     FilterChain filterChain) 
             throws ServletException, IOException {
         
+        // 1. Obtener la ruta de la petición actual
+        String path = request.getRequestURI();
+        
+        // 2. EXCLUSIÓN: Saltar el filtro para rutas públicas configuradas en SecurityConfig
+        // Esto permite que Spring Security procese estas rutas sin exigir token
+        if (path.startsWith("/api/auth/") || path.equals("/api/health")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
+        // 3. Lógica de validación para el resto de rutas (privadas)
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String username;

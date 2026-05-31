@@ -1,0 +1,67 @@
+version: "3.8"
+
+networks:
+  siglu-net:
+    driver: bridge
+
+volumes:
+  db-data:
+  filestore-data:
+
+services:
+  # ── Base de Datos ───────────────────────────────────────────────
+  db:
+    image: docker.io/library/postgres:17-alpine
+    container_name: siglu-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-siglu_db}
+      POSTGRES_USER: ${POSTGRES_USER:-siglu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-siglu2026}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - siglu-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-siglu} -d ${POSTGRES_DB:-siglu_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend ─────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: infra/Containerfile.backend
+    container_name: siglu-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-siglu_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-siglu}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-siglu2026}
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - filestore-data:/app/uploads
+    networks:
+      - siglu-net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ── Frontend ────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: infra/Containerfile.frontend
+    container_name: siglu-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - siglu-net
+    depends_on:
+      backend:
+        condition: service_started
