@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { colaboradorApi } from '../api/colaboradorApi';
 import ColaboradorForm from '../components/ColaboradorForm';
@@ -6,6 +7,7 @@ import ColaboradorEditForm from '../components/ColaboradorEditForm';
 import HistorialModal from '../components/HistorialModal';
 
 const ColaboradoresPage = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [activo, setActivo] = useState(true);
@@ -86,6 +88,11 @@ const ColaboradoresPage = () => {
   const handleHistorial = (colaborador) => {
     setSelectedColaborador(colaborador);
     setShowHistorialModal(true);
+  };
+
+  const handleDocumentos = (colaborador) => {
+    console.log('Navegando a documentos del colaborador:', colaborador.id);
+    navigate(`/colaboradores/${colaborador.id}/documentos`);
   };
 
   const handleSuccess = () => {
@@ -180,7 +187,7 @@ const ColaboradoresPage = () => {
                     { label: 'Correo', col: 'correoPersonal', width: '190px' },
                     { label: 'Teléfono', col: null, width: '110px' },
                     { label: 'Estado', col: 'activo', width: '90px' },
-                    { label: 'Acciones', col: null, width: '96px' },
+                    { label: 'Acciones', col: null, width: '120px' },
                   ].map(({ label, col, width }) => (
                     <th
                       key={label}
@@ -227,6 +234,13 @@ const ColaboradoresPage = () => {
                           title="Historial"
                         >
                           <i className="fas fa-history"></i>
+                        </button>
+                        <button
+                          onClick={() => handleDocumentos(col)}
+                          style={styles.actionBtn}
+                          title="Documentos"
+                        >
+                          <i className="fas fa-folder-open"></i>
                         </button>
                         {col.activo ? (
                           <button

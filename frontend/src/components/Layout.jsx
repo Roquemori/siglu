@@ -33,6 +33,11 @@ const Layout = () => {
                 Colaboradores
               </button>
             </li>
+            <li style={{ marginBottom: '10px' }}>
+              <button onClick={() => navigate('/documentos')} style={navButtonStyle}>
+                Documentos
+              </button>
+            </li>
             {hasRole('ADMIN') && (
               <li style={{ marginBottom: '10px' }}>
                 <button onClick={() => navigate('/usuarios')} style={navButtonStyle}>

@@ -7,7 +7,7 @@ networks:
 volumes:
   db-data:
   filestore-data:
-
+ 
 services:
   # ── Base de Datos ───────────────────────────────────────────────
   db:

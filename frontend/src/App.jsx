@@ -4,19 +4,18 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ColaboradoresPage from './pages/ColaboradoresPage';
+import ColaboradorDocumentosPage from './pages/ColaboradorDocumentosPage';
+import DocumentosPage from './pages/DocumentosPage';
 import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const token = localStorage.getItem('siglu_token');
   
-  console.log('PrivateRoute - user:', user, 'loading:', loading, 'token:', !!token);
-  
   if (loading) {
     return <div>Cargando...</div>;
   }
   
-  // Permitir acceso si hay token o usuario
   return (user || token) ? children : <Navigate to="/login" />;
 };
 
@@ -31,6 +30,8 @@ function AppRoutes() {
       }>
         <Route index element={<DashboardPage />} />
         <Route path="colaboradores" element={<ColaboradoresPage />} />
+        <Route path="colaboradores/:id/documentos" element={<ColaboradorDocumentosPage />} />
+        <Route path="documentos" element={<DocumentosPage />} />
       </Route>
     </Routes>
   );
